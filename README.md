@@ -28,5 +28,7 @@ A super simple Rock Paper Scissors game made using Svelte.
 ## Credits
 
 [Svelte Tutorial](https://svelte.dev/tutorial/svelte) &mdash; Svelte Tutorial
+
 [Svelte Docs](https://svelte.dev/docs/svelte) &mdash; Svelte Docs
+
 [Stackoverflow](https://stackoverflow.com) &mdash; yes
