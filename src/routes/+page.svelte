@@ -139,7 +139,7 @@
         flex-direction: column;
         justify-content: space-between;
         align-items: center;
-        height: 100vmin;
+        height: 100vh;
     }
 
     .header {
@@ -182,7 +182,7 @@
     }
 
     .play_again {
-        font-size: 6vh;
+        font-size: 6vmin;
         font-weight: 900;
         text-shadow: none;
         color: #2e3440;
@@ -199,7 +199,7 @@
     }
 
     .footer {
-        height: 5vh;
+        height: 5vmin;
         width: 100vw;
         display: flex;
         align-items: center;

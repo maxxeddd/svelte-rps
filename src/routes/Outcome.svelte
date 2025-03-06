@@ -16,7 +16,7 @@
 
 <style>
     h1 {
-        font-size: 12vh;
+        font-size: 12vmin;
     }
 
     .win {
