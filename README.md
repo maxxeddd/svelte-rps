@@ -22,8 +22,9 @@ A super simple Rock Paper Scissors game made using Svelte.
 ## todo
 
 - [ ] multiplayer ?
-- [ ] better function names
+- [x] better function names
 - [ ] animations
+- [x] save winrate
 
 ## Credits
 

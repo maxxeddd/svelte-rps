@@ -1,8 +1,17 @@
 <script lang="ts">
+    import { onMount } from "svelte";
     import Outcome from "./Outcome.svelte";
+
+    let is_loading: boolean = $state(true);
 
     let wins: number = $state(0);
     let losses: number = $state(0);
+
+    onMount(() => {
+        wins = Number(localStorage.getItem("wins"));
+        losses = Number(localStorage.getItem("losses"));
+        is_loading = false;
+    });
 
     let just_played: boolean = $state(false);
     function toggle_state() {
@@ -18,7 +27,7 @@
         options[Math.floor(Math.random() * options.length)],
     );
 
-    function asjdajskdasbdbkashjd(option: number): string {
+    function num_to_option(option: number): string {
         switch (option) {
             case 0:
                 return "Rock 🪨";
@@ -32,7 +41,8 @@
     }
 
     function random_choice() {
-        opp_choice = options[Math.floor(Math.random() * options.length)];
+        opp_choice =
+            options[Math.floor(Math.random() * options.length)];
     }
 
     let outcome: "W" | "L" | "D" = $state("D");
@@ -43,8 +53,10 @@
         }
 
         if (
-            options[(user_choice - 1 + options.length) % options.length] ===
-            opp_choice
+            options[
+                (user_choice - 1 + options.length) %
+                    options.length
+            ] === opp_choice
         ) {
             outcome = "W";
             wins += 1;
@@ -58,7 +70,13 @@
     function select(option: number) {
         user_choice = option;
         get_outcome();
+        save_winrate();
         toggle_state();
+    }
+
+    function save_winrate() {
+        localStorage.setItem("wins", String(wins));
+        localStorage.setItem("losses", String(losses));
     }
 </script>
 
@@ -70,7 +88,8 @@
     {#if just_played === false}
         <div class="middle">
             <h2>
-                The <span style="color: #bf616a">opponent</span> has made a choice.
+                The <span style="color: #bf616a">opponent</span>
+                has made a choice.
             </h2>
             <h2>Make your choice:</h2>
         </div>
@@ -94,11 +113,12 @@
     {:else}
         <div class="middle">
             <h2>
-                The <span style="color: #bf616a">opponent</span>'s choice was {asjdajskdasbdbkashjd(
-                    opp_choice,
-                )}.
+                The <span style="color: #bf616a">opponent</span
+                >'s choice was {num_to_option(opp_choice)}.
             </h2>
-            <h2>You chose {asjdajskdasbdbkashjd(user_choice)}.</h2>
+            <h2>
+                You chose {num_to_option(user_choice)}.
+            </h2>
             <Outcome {outcome} />
         </div>
         <button
@@ -109,11 +129,16 @@
             }}>Play again</button
         >
     {/if}
+
     <div class="footer">
         <div class="stats">
-            <span>W: {wins}</span>
-            <span>|</span>
-            <span>L: {losses}</span>
+            {#if !is_loading}
+                <span>W: {wins}</span>
+                <span>|</span>
+                <span>L: {losses}</span>
+            {:else}
+                <span>Loading...</span>
+            {/if}
         </div>
     </div>
 </div>
