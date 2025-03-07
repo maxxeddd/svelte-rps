@@ -14,7 +14,7 @@
     });
 
     let just_played: boolean = $state(false);
-    function toggle_state() {
+    function toggleState() {
         just_played = !just_played;
     }
 
@@ -27,7 +27,7 @@
         options[Math.floor(Math.random() * options.length)],
     );
 
-    function num_to_option(option: number): string {
+    function numToOption(option: number): string {
         switch (option) {
             case 0:
                 return "Rock 🪨";
@@ -36,17 +36,17 @@
             case 2:
                 return "Scissors ✂️";
             default:
-                return "wtf.";
+                return "";
         }
     }
 
-    function random_choice() {
+    function randomChoice() {
         opp_choice =
             options[Math.floor(Math.random() * options.length)];
     }
 
     let outcome: "W" | "L" | "D" = $state("D");
-    function get_outcome() {
+    function getOutcome() {
         if (user_choice === opp_choice) {
             outcome = "D";
             return;
@@ -69,12 +69,12 @@
 
     function select(option: number) {
         user_choice = option;
-        get_outcome();
-        save_winrate();
-        toggle_state();
+        getOutcome();
+        saveWinrate();
+        toggleState();
     }
 
-    function save_winrate() {
+    function saveWinrate() {
         localStorage.setItem("wins", String(wins));
         localStorage.setItem("losses", String(losses));
     }
@@ -114,18 +114,18 @@
         <div class="middle">
             <h2>
                 The <span style="color: #bf616a">opponent</span
-                >'s choice was {num_to_option(opp_choice)}.
+                >'s choice was {numToOption(opp_choice)}.
             </h2>
             <h2>
-                You chose {num_to_option(user_choice)}.
+                You chose {numToOption(user_choice)}.
             </h2>
             <Outcome {outcome} />
         </div>
         <button
             class="play_again"
             onclick={() => {
-                toggle_state();
-                random_choice();
+                toggleState();
+                randomChoice();
             }}>Play again</button
         >
     {/if}
