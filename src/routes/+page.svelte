@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import { fade, fly, blur, scale } from "svelte/transition";
+    import { fade, fly } from "svelte/transition";
     import Outcome from "./Outcome.svelte";
 
     let is_loading: boolean = $state(true);
@@ -13,8 +13,6 @@
         losses = Number(localStorage.getItem("losses"));
         is_loading = false;
     });
-
-    // ADD STATES
 
     let states: string[] = [
         "selection",
@@ -37,8 +35,6 @@
             }, 550);
         }
     }
-
-    // ADD STATES
 
     // 0 - Rock
     // 1 - Paper
