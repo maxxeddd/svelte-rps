@@ -1,8 +1,17 @@
 <script>
+    import { scale } from "svelte/transition";
+    import { elasticOut } from "svelte/easing";
+
     let { outcome } = $props();
 </script>
 
-<h1>
+<h1
+    in:scale={{
+        delay: 200,
+        duration: 1500,
+        easing: elasticOut,
+    }}
+>
     {#if outcome === "W"}
         You <span class="win">won</span>!!!
     {/if}

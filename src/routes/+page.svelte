@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onMount } from "svelte";
+    import { fade, fly, blur, scale } from "svelte/transition";
     import Outcome from "./Outcome.svelte";
 
     let is_loading: boolean = $state(true);
@@ -13,10 +14,31 @@
         is_loading = false;
     });
 
-    let just_played: boolean = $state(false);
+    // ADD STATES
+
+    let states: string[] = [
+        "selection",
+        "animation",
+        "results",
+    ];
+    let app_state: "selection" | "transition" | "results" =
+        $state("selection");
+
     function toggleState() {
-        just_played = !just_played;
+        if (app_state === "selection") {
+            app_state = "transition";
+            setTimeout(() => {
+                app_state = "results";
+            }, 550);
+        } else {
+            app_state = "transition";
+            setTimeout(() => {
+                app_state = "selection";
+            }, 550);
+        }
     }
+
+    // ADD STATES
 
     // 0 - Rock
     // 1 - Paper
@@ -85,15 +107,21 @@
         <h1 class="title">Rock Paper Scissors</h1>
     </div>
 
-    {#if just_played === false}
-        <div class="middle">
+    {#if app_state === "selection"}
+        <div
+            class="middle"
+            transition:fly={{ duration: 500, y: -100 }}
+        >
             <h2>
                 The <span style="color: #bf616a">opponent</span>
                 has made a choice.
             </h2>
             <h2>Make your choice:</h2>
         </div>
-        <div class="choices">
+        <div
+            class="choices"
+            transition:fly={{ duration: 500, y: 100 }}
+        >
             <button
                 onclick={() => {
                     select(0);
@@ -110,8 +138,12 @@
                 }}>✂️</button
             >
         </div>
-    {:else}
-        <div class="middle">
+    {:else if app_state === "transition"}{:else}
+        <div
+            class="middle"
+            in:fade={{ duration: 250 }}
+            out:fade={{ duration: 250 }}
+        >
             <h2>
                 The <span style="color: #bf616a">opponent</span
                 >'s choice was {numToOption(opp_choice)}.
@@ -122,7 +154,9 @@
             <Outcome {outcome} />
         </div>
         <button
-            class="play_again"
+            class="play-again"
+            in:fly={{ duration: 500, y: 100 }}
+            out:fade={{ duration: 500 }}
             onclick={() => {
                 toggleState();
                 randomChoice();
@@ -133,11 +167,23 @@
     <div class="footer">
         <div class="stats">
             {#if !is_loading}
-                <span>W: {wins}</span>
-                <span>|</span>
-                <span>L: {losses}</span>
+                <div
+                    class="stats-content"
+                    in:fade={{
+                        delay: 200,
+                        duration: 500,
+                    }}
+                >
+                    <span>W: {wins}</span>
+                    <span>|</span>
+                    <span>L: {losses}</span>
+                </div>
             {:else}
-                <span>Loading...</span>
+                <span
+                    class="stats-content"
+                    out:fade={{ duration: 100 }}
+                    >Loading...</span
+                >
             {/if}
         </div>
     </div>
@@ -174,6 +220,7 @@
         align-items: center;
         box-shadow: -0px 5px 0px 5px #00000066;
         background-color: #434c5e;
+        z-index: 6;
     }
 
     .title {
@@ -183,6 +230,7 @@
     }
 
     .middle {
+        z-index: 0;
         font-size: 2vh;
     }
 
@@ -206,7 +254,7 @@
         transition: 500ms;
     }
 
-    .play_again {
+    .play-again {
         font-size: 6vmin;
         font-weight: 900;
         text-shadow: none;
@@ -218,7 +266,7 @@
         cursor: pointer;
     }
 
-    .play_again:hover {
+    .play-again:hover {
         transition: 500ms;
         box-shadow: 0px 0px 20px #000000cc;
     }
@@ -232,11 +280,26 @@
         color: #eceff4;
         box-shadow: -0px -5px 0px 5px #00000066;
         text-shadow: 5px 5px #00000066;
+        z-index: 6;
     }
 
     .stats {
+        position: relative;
         width: 50%;
+        height: 100%;
         margin: 0 auto;
         font-weight: 900;
+    }
+
+    .stats-content {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1vmin;
     }
 </style>
