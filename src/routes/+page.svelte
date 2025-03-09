@@ -2,49 +2,50 @@
     import { onMount } from "svelte";
     import { fade, fly } from "svelte/transition";
     import Outcome from "./Outcome.svelte";
+    import { confetti } from "tsparticles-confetti";
 
-    let is_loading: boolean = $state(true);
-
-    let wins: number = $state(0);
-    let losses: number = $state(0);
-
-    onMount(() => {
-        wins = Number(localStorage.getItem("wins"));
-        losses = Number(localStorage.getItem("losses"));
-        is_loading = false;
+    onMount(async () => {
+        await loadWinrate();
     });
 
-    let states: string[] = [
-        "selection",
-        "animation",
-        "results",
-    ];
-    let app_state: "selection" | "transition" | "results" =
+    // app state
+    let isLoading: boolean = $state(true);
+    let appState: "selection" | "transition" | "results" =
         $state("selection");
-
     function toggleState() {
-        if (app_state === "selection") {
-            app_state = "transition";
+        if (appState === "selection") {
+            appState = "transition";
             setTimeout(() => {
-                app_state = "results";
+                appState = "results";
             }, 550);
         } else {
-            app_state = "transition";
+            appState = "transition";
             setTimeout(() => {
-                app_state = "selection";
+                appState = "selection";
             }, 550);
         }
     }
 
+    let wins: number = $state(0);
+    let losses: number = $state(0);
+    // load winrate from local storage
+    async function loadWinrate() {
+        wins = Number(localStorage.getItem("wins"));
+        losses = Number(localStorage.getItem("losses"));
+        isLoading = false;
+    }
+    // save winrate to local storage
+    function saveWinrate() {
+        localStorage.setItem("wins", String(wins));
+        localStorage.setItem("losses", String(losses));
+    }
+
+    // options
     // 0 - Rock
     // 1 - Paper
     // 2 - Scissors
     let options: number[] = [0, 1, 2];
-    let user_choice: number = $state(0);
-    let opp_choice: number = $state(
-        options[Math.floor(Math.random() * options.length)],
-    );
-
+    let userChoice: number = $state(0);
     function numToOption(option: number): string {
         switch (option) {
             case 0:
@@ -58,43 +59,84 @@
         }
     }
 
+    // opponent choice
+    let oppChoice: number = $state(
+        options[Math.floor(Math.random() * options.length)],
+    );
     function randomChoice() {
-        opp_choice =
+        oppChoice =
             options[Math.floor(Math.random() * options.length)];
     }
 
+    // user selects option
+    function select(option: number) {
+        userChoice = option;
+        getOutcome();
+        saveWinrate();
+        toggleState();
+    }
+
+    // outcome
     let outcome: "W" | "L" | "D" = $state("D");
     function getOutcome() {
-        if (user_choice === opp_choice) {
+        if (userChoice === oppChoice) {
             outcome = "D";
             return;
         }
 
         if (
             options[
-                (user_choice - 1 + options.length) %
+                (userChoice - 1 + options.length) %
                     options.length
-            ] === opp_choice
+            ] === oppChoice
         ) {
             outcome = "W";
-            wins += 1;
+            setTimeout(() => {
+                wins += 1;
+                throwConfetti();
+            }, 800);
             return;
         }
 
         outcome = "L";
-        losses += 1;
+        setTimeout(() => {
+            losses += 1;
+        }, 800);
     }
 
-    function select(option: number) {
-        user_choice = option;
-        getOutcome();
-        saveWinrate();
-        toggleState();
-    }
-
-    function saveWinrate() {
-        localStorage.setItem("wins", String(wins));
-        localStorage.setItem("losses", String(losses));
+    // confetti
+    let confettiColors: string[] = [
+        "#d08770",
+        "#a3be8c",
+        "#b48ead",
+    ];
+    async function throwConfetti() {
+        await confetti({
+            particleCount: 300,
+            spread: 135,
+            origin: { x: 0, y: 0.9 },
+            colors: confettiColors,
+            angle: 45,
+            startVelocity: 100,
+            decay: 0.85,
+            gravity: 0,
+            scalar: 1.5,
+            zIndex: -1,
+            ticks: 500,
+        });
+        await confetti({
+            particleCount: 300,
+            spread: 135,
+            origin: { x: 1, y: 0.9 },
+            colors: confettiColors,
+            angle: 135,
+            startVelocity: 100,
+            decay: 0.85,
+            gravity: 0,
+            scalar: 1.5,
+            zIndex: -1,
+            ticks: 500,
+        });
     }
 </script>
 
@@ -103,7 +145,7 @@
         <h1 class="title">Rock Paper Scissors</h1>
     </div>
 
-    {#if app_state === "selection"}
+    {#if appState === "selection"}
         <div
             class="middle"
             transition:fly={{ duration: 500, y: -100 }}
@@ -134,7 +176,7 @@
                 }}>✂️</button
             >
         </div>
-    {:else if app_state === "transition"}{:else}
+    {:else if appState === "transition"}{:else}
         <div
             class="middle"
             in:fade={{ duration: 250 }}
@@ -142,10 +184,10 @@
         >
             <h2>
                 The <span style="color: #bf616a">opponent</span
-                >'s choice was {numToOption(opp_choice)}.
+                >'s choice was {numToOption(oppChoice)}.
             </h2>
             <h2>
-                You chose {numToOption(user_choice)}.
+                You chose {numToOption(userChoice)}.
             </h2>
             <Outcome {outcome} />
         </div>
@@ -162,7 +204,7 @@
 
     <div class="footer">
         <div class="stats">
-            {#if !is_loading}
+            {#if !isLoading}
                 <div
                     class="stats-content"
                     in:fade={{
@@ -232,6 +274,7 @@
 
     button {
         all: unset;
+        cursor: pointer;
     }
 
     .choices > button {
@@ -241,7 +284,6 @@
         background-color: #d8dee9;
         border-radius: 100vh;
         text-shadow: 0px 0px 50px #000000cc;
-        cursor: pointer;
         transition: 500ms;
     }
 
@@ -259,7 +301,6 @@
         padding: 4vh 6vh;
         border-radius: 100vh;
         transition: 500ms;
-        cursor: pointer;
     }
 
     .play-again:hover {
