@@ -194,7 +194,7 @@
         <button
             class="play-again"
             in:fly={{ duration: 500, y: 100 }}
-            out:fade={{ duration: 500 }}
+            out:fade={{ duration: 250 }}
             onclick={() => {
                 toggleState();
                 randomChoice();
